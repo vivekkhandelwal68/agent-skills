@@ -94,7 +94,7 @@ echo "-----------------------------------------"
 # ---------------------------------------------------------------------
 echo "Step 3: Checking for existing Astro project structure..."
 
-if [ -f "Dockerfile" ] || [ -d ".astro" ]; then
+if [ -f "Dockerfile" ] && [ -d ".astro" ] && [ -d "dags" ]; then
     echo "ℹ️ An Astro project configuration (Dockerfile or .astro directory) already exists."
     echo "Skipping initialization to protect your existing environment."
 else

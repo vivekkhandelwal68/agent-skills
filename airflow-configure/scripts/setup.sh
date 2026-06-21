@@ -1,60 +1,43 @@
 #!/bin/bash
 
-echo "========================================="
-echo "   Astro CLI Project Configurator"
-echo "========================================="
-echo ""
+# Determine project name from the current working directory
+PROJECT_NAME=$(basename "$PWD")
+SECRETS_DIR="$HOME/.airflow_secrets/$PROJECT_NAME"
+SETTINGS_FILE="airflow_settings.yaml"
 
-# Assign arguments to meaningful variables
-FILE_TYPE=$1    # Expects "os" or "python"
-SOURCE_PATH=$2  # Expects the path to the file
+# Handle airflow_settings.yaml migration
+if [ -f "$SETTINGS_FILE" ]; then
+    echo "🔒 Found $SETTINGS_FILE. Moving to secure directory..."
+    
+    # Create the secret directory if it doesn't exist
+    mkdir -p "$SECRETS_DIR"
+    
+    # Move the file
+    mv "$SETTINGS_FILE" "$SECRETS_DIR/$SETTINGS_FILE"
+    
+    echo "ℹ️  $SETTINGS_FILE has been moved to $SECRETS_DIR/$SETTINGS_FILE"
+    echo "⚠️  Please configure it manually in its new location."
+    echo ""
+    echo "💡 To apply these settings:"
+    echo "   • If Airflow is ALREADY running, run:"
+    echo "     astro dev object import -s \"$SECRETS_DIR/$SETTINGS_FILE\""
+    echo ""
+    echo "   • If Airflow is NOT running and you want to start it with these settings, run:"
+    echo "     astro dev start -s \"$SECRETS_DIR/$SETTINGS_FILE\""
+    echo "========================================="
+    echo ""
+fi
 
-handle_file() {
-    local source_path=$1
-    local target_file=$2
-
-    if [ -z "$source_path" ]; then
-        echo "❌ Error: No file path provided for this package type."
-        exit 1
-    fi
-
-    # Expand tilde safely
-    if [[ "$source_path" == ~* ]]; then
-        source_path="${source_path/#\~/$HOME}"
-    fi
-
-    if [ -f "$source_path" ]; then
-        cp "$source_path" "$target_file"
-        echo "✅ Successfully copied $(basename "$source_path") to $target_file"
-    else
-        echo "❌ Error: File not found at '$source_path'."
-        exit 1
-    fi
-}
-
-# Evaluate the package type provided in argument 1
-case "$FILE_TYPE" in
-    os)
-        echo "📦 Processing OS packages..."
-        handle_file "$SOURCE_PATH" "packages.txt"
-        ;;
-    python)
-        echo "🐍 Processing Python dependencies..."
-        handle_file "$SOURCE_PATH" "requirements.txt"
-        ;;
-    "")
-        echo "⏭️  No package type provided. Skipping file configurations."
-        ;;
-    *)
-        echo "❌ Error: Invalid type '$FILE_TYPE'. Use 'os' or 'python'."
-        exit 1
-        ;;
-esac
-
-echo ""
 echo "========================================="
 echo "🚀 Starting Astro Dev Environment..."
 echo "========================================="
 echo ""
 
-astro dev start
+# Verify Astro CLI is installed before starting
+if command -v astro &> /dev/null; then
+    astro dev start
+else
+    echo "❌ Error: 'astro' CLI tool is not installed or not in your PATH."
+    echo "Please install it or run this script in an environment where it is available."
+    exit 1
+fi
