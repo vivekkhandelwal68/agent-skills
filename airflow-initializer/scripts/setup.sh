@@ -99,7 +99,11 @@ if [ -f "Dockerfile" ] && [ -d ".astro" ] && [ -d "dags" ]; then
     echo "Skipping initialization to protect your existing environment."
 else
     echo "🚀 No existing Astro project found. Initializing fresh Astro project..."
-   astro dev init || { echo "❌ Error: 'astro dev init' failed to execute." >&2; exit 1; }
+    echo "creating temp-astro temp directory and intialize airflow project in it..."
+    mkdir temp-astro && cd temp-astro
+    astro dev init || { echo "❌ Error: 'astro dev init' failed to execute." >&2; exit 1; }
+    echo "copying files from temp-astro to current directory..."
+    mv * .* .. 2>/dev/null; cd .. && rmdir temp-astro
     echo "✔ Astro project initialized successfully."
 fi
 
