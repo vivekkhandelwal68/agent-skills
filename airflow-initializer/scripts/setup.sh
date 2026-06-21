@@ -103,7 +103,7 @@ else
     mkdir temp-astro && cd temp-astro
     astro dev init || { echo "❌ Error: 'astro dev init' failed to execute." >&2; exit 1; }
     echo "copying files from temp-astro to current directory..."
-    mv * .* .. 2>/dev/null; cd .. && rm -rfgit  temp-astro
+    mv * .* .. 2>/dev/null; cd .. && rm -rf temp-astro
     echo "✔ Astro project initialized successfully."
 fi
 
